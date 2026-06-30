@@ -6,6 +6,7 @@ import (
 	"os"
 	"sync/atomic"
 	"encoding/json"
+	"strings"
 )
 
 type apiConfig struct {
@@ -70,14 +71,14 @@ func respondWithError(w http.ResponseWriter, code int, msg string) {
     w.Write(dat)
 }
 
-func respondWithJSON(w http.ResponseWriter, code int) {
+func respondWithJSON(w http.ResponseWriter, code int, value string) {
 	
 	type returnVals struct {
-        Valid bool `json:"valid"`
+        Cleaned_body string `json:"cleaned_body"`
     }
     
 	respBody := returnVals{
-        Valid: true,
+        Cleaned_body: value,
     }
 
     dat, err := json.Marshal(respBody)
@@ -99,6 +100,12 @@ func chirpRequestHandler(w http.ResponseWriter, r *http.Request) {
         Body string `json:"body"`
     }
 
+	mapWord := map[string]int{
+		"kerfuffle":  1,
+		"sharbert": 1,
+		"fornax": 1,
+	}
+
     decoder := json.NewDecoder(r.Body)
     params := parameters{}
     err := decoder.Decode(&params)
@@ -109,7 +116,18 @@ func chirpRequestHandler(w http.ResponseWriter, r *http.Request) {
     }
 
 	if len(params.Body) <= 140 {
-		respondWithJSON(w, 200)
+		splited := strings.Split(params.Body, " ")
+		sliceResult := []string{}
+
+		for _, value := range splited {
+			_, ok := mapWord[strings.ToLower(value)]
+			if ok {
+				sliceResult = append(sliceResult, "****")
+			} else {
+				sliceResult = append(sliceResult, value)
+			}
+		}
+		respondWithJSON(w, 200, strings.Join(sliceResult, " "))
 	} else {
 		respondWithError(w, 400, "Chirp is too long")
 	}
