@@ -43,9 +43,9 @@ func main() {
 
 	const filepathRoot = "."
 	mux.Handle("/app/", apiconfig.middlewareMetricsInc(http.StripPrefix("/app", http.FileServer(http.Dir(filepathRoot)))))
-	mux.HandleFunc("GET /healthz", readinessHandler)
-	mux.HandleFunc("GET /metrics", apiconfig.writeHitRequest)
-	mux.HandleFunc("POST /reset", apiconfig.resetHitRequest)
+	mux.HandleFunc("GET /api/healthz", readinessHandler)
+	mux.HandleFunc("GET /api/metrics", apiconfig.writeHitRequest)
+	mux.HandleFunc("POST /api/reset", apiconfig.resetHitRequest)
 
 	server := http.Server{
 		Addr:    ":8080",
