@@ -1,13 +1,12 @@
-package metrics
+package config
 
 
 import (
 	"fmt"
 	"net/http"
-	"github.com/MoisesASantos/WEBSERVER_GO/admin/config"
 )
 
-func (cfg *config.ApiConfig) MetricRequestHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *ApiConfig) MetricRequestHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 

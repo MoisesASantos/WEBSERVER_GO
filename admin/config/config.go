@@ -1,9 +1,9 @@
 package config
 
-import {
+import (
 	"sync/atomic"
 	"net/http"
-}
+)
 
 type ApiConfig struct {
 	FileserverHits atomic.Int32
