@@ -5,6 +5,20 @@ import (
 	"encoding/json"
 	"net/http"
 )
+
+func DecodeJSON[T any](r *http.Request) (T, error) {
+	var payload T
+
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&payload)
+	if err != nil {
+		return payload, err
+	}
+
+	return payload, nil
+}
+   
+
 func RespondWithError(w http.ResponseWriter, code int, msg string) error {
 
 	type returnVals struct {

@@ -9,7 +9,6 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/MoisesASantos/WEBSERVER_GO/admin/config"
 	"github.com/MoisesASantos/WEBSERVER_GO/api/healthz"
-	"github.com/MoisesASantos/WEBSERVER_GO/api/chirp"
 	"github.com/MoisesASantos/WEBSERVER_GO/internal/database"
 )
 
@@ -31,7 +30,7 @@ func main() {
 	mux.HandleFunc("GET /api/healthz", healthz.ReadinessHandler)
 	mux.HandleFunc("GET /admin/metrics", apiconfig.MetricRequestHandler)
 	mux.HandleFunc("POST /admin/reset", apiconfig.ResetHitRequest)
-	mux.HandleFunc("POST /api/chirps", chirp.ChirpRequestHandler)
+	mux.HandleFunc("POST /api/chirps", apiconfig.ChirpRequestHandler)
 	mux.HandleFunc("POST /api/users", apiconfig.UsersRequestHandler)
 
 	server := http.Server{

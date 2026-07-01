@@ -15,16 +15,14 @@ type returnVals struct {
     Email string `json:"email"`
 }
 
+type requestbody struct {
+		Email string `json:"email"`
+}
+
 func (cfg *ApiConfig) UsersRequestHandler(w http.ResponseWriter, r *http.Request) {
 
 	//Get the request body
-	type requestbody struct {
-		Email string `json:"email"`
-	}
-
-	decoder := json.NewDecoder(r.Body)
-	data := requestbody{}
-	err := decoder.Decode(&data)
+	data, err := DecodeJSON[requestBody](r)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return 
@@ -38,14 +36,12 @@ func (cfg *ApiConfig) UsersRequestHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	//now create a response
-
 	payload := returnVals{
 		ID: 		userResult.ID,
 		CreatedAt: 	userResult.CreatedAt,
 		UpdatedAt: 	userResult.UpdatedAt,
 		Email:		userResult.Email,
 	}
-
 	err = RespondWithJSON(w, 201, payload)
 	if err != nil {
 		return
