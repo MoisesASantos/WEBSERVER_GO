@@ -1,5 +1,6 @@
 package main
 
+import _ "github.com/lib/pq"
 import (
 	"fmt"
 	"net/http"
@@ -7,11 +8,18 @@ import (
 	"github.com/MoisesASantos/WEBSERVER_GO/admin/config"
 	"github.com/MoisesASantos/WEBSERVER_GO/api/healthz"
 	"github.com/MoisesASantos/WEBSERVER_GO/api/chirp"
+	"github.com/MoisesASantos/WEBSERVER_GO/internal/database"
 )
 
 func main() {
 
 	apiconfig := config.ApiConfig{}
+
+	godotenv.Load()
+	dbURL := os.Getenv("DB_URL")
+	db, err := sql.Open("postgres", dbURL)
+	apiconfig.Db := database.New(db)
+
 	mux := http.NewServeMux()
 
 	const filepathRoot = "."
