@@ -1,7 +1,6 @@
 package config
 
 import (
-	"encoding/json"
 	"net/http"
 	"time"
 	"fmt"
@@ -22,7 +21,7 @@ type requestbody struct {
 func (cfg *ApiConfig) UsersRequestHandler(w http.ResponseWriter, r *http.Request) {
 
 	//Get the request body
-	data, err := DecodeJSON[requestBody](r)
+	data, err := DecodeJSON[requestbody](r)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return 
