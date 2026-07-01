@@ -10,7 +10,7 @@ import (
 )
 
 type returnVals struct {
-        	Cleaned_body string `json:"cleaned_body"`
+    Cleaned_body string `json:"cleaned_body"`
 }
 
 type parameters struct {
@@ -32,7 +32,7 @@ func ChirpRequestHandler(w http.ResponseWriter, r *http.Request) {
     if err != nil {
 		fmt.Printf("Error decoding parameters: %s", err)
 		w.WriteHeader(500)
-		return err
+		return 
     }
 
 	if len(params.Body) <= 140 {
@@ -52,7 +52,7 @@ func ChirpRequestHandler(w http.ResponseWriter, r *http.Request) {
 		respBody := returnVals{
         	Cleaned_body: strings.Join(sliceResult, " "),
     	}
-		err = config.RespondWithJSON(w, 200, returnVals)
+		err = config.RespondWithJSON(w, 200, respBody)
 	} else {
 		err =config.RespondWithError(w, 400, "Chirp is too long")
 	}
@@ -60,7 +60,6 @@ func ChirpRequestHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Printf("Error creating the response: %s", err)
 		w.WriteHeader(500)
-		return err
+		return
 	}
-	return nil;
 }

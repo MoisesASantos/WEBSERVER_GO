@@ -1,20 +1,21 @@
-package users
+package config
 
 import (
 	"encoding/json"
 	"net/http"
 	"time"
-	"github.com/MoisesASantos/WEBSERVER_GO/admin/config"
+	"fmt"
+	"github.com/google/uuid"
 )
 
 type returnVals struct {
-    ID uuid `json:"id"`
-    CreatedAt time.time `json:"created_at"`
-    UpdatedAt time.time `json:"updated_at"`
+    ID uuid.UUID `json:"id"`
+    CreatedAt time.Time `json:"created_at"`
+    UpdatedAt time.Time `json:"updated_at"`
     Email string `json:"email"`
 }
 
-func UsersRequestHandler(w http.ResponseWriter, r *http.Request) error {
+func (cfg *ApiConfig) UsersRequestHandler(w http.ResponseWriter, r *http.Request) {
 
 	//Get the request body
 	type requestbody struct {
@@ -26,15 +27,14 @@ func UsersRequestHandler(w http.ResponseWriter, r *http.Request) error {
 	err := decoder.Decode(&data)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
-		return err
+		return 
 	}
 
 	//create the user using a function created per sqlc
-	apiconfig := config.ApiConfig{}
-	userResult, err := apiconfig.Db.CreateUSer(r.Context(), data.Email)
+	userResult, err := cfg.Db.CreateUser(r.Context(), data.Email)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
-		return err
+		return
 	}
 
 	//now create a response
@@ -46,9 +46,8 @@ func UsersRequestHandler(w http.ResponseWriter, r *http.Request) error {
 		Email:		userResult.Email,
 	}
 
-	err = config.RespondWithJSON(w, 200, payload)
+	err = RespondWithJSON(w, 201, payload)
 	if err != nil {
-		return err
+		return
 	}
-	return nil
 }

@@ -10,7 +10,6 @@ import (
 	"github.com/MoisesASantos/WEBSERVER_GO/admin/config"
 	"github.com/MoisesASantos/WEBSERVER_GO/api/healthz"
 	"github.com/MoisesASantos/WEBSERVER_GO/api/chirp"
-	"github.com/MoisesASantos/WEBSERVER_GO/api/users"
 	"github.com/MoisesASantos/WEBSERVER_GO/internal/database"
 )
 
@@ -24,7 +23,7 @@ func main() {
 	db, err := sql.Open("postgres", dbURL)
 	apiconfig.Db = database.New(db)
 	apiconfig.AuthDev = authDev
-	
+
 	mux := http.NewServeMux()
 
 	const filepathRoot = "."
@@ -33,7 +32,7 @@ func main() {
 	mux.HandleFunc("GET /admin/metrics", apiconfig.MetricRequestHandler)
 	mux.HandleFunc("POST /admin/reset", apiconfig.ResetHitRequest)
 	mux.HandleFunc("POST /api/validate_chirp", chirp.ChirpRequestHandler)
-	mux.HandleFunc("POST /api/users", users.UsersRequestHandler)
+	mux.HandleFunc("POST /api/users", apiconfig.UsersRequestHandler)
 
 	server := http.Server{
 		Addr:    ":8080",
