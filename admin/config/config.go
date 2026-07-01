@@ -3,6 +3,7 @@ package config
 import (
 	"sync/atomic"
 	"net/http"
+	"github.com/MoisesASantos/WEBSERVER_GO/internal/database"
 )
 
 type ApiConfig struct {

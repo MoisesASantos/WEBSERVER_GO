@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"database/sql"
+	"github.com/joho/godotenv"
 	"github.com/MoisesASantos/WEBSERVER_GO/admin/config"
 	"github.com/MoisesASantos/WEBSERVER_GO/api/healthz"
 	"github.com/MoisesASantos/WEBSERVER_GO/api/chirp"
@@ -18,7 +20,7 @@ func main() {
 	godotenv.Load()
 	dbURL := os.Getenv("DB_URL")
 	db, err := sql.Open("postgres", dbURL)
-	apiconfig.Db := database.New(db)
+	apiconfig.Db = database.New(db)
 
 	mux := http.NewServeMux()
 
@@ -34,7 +36,7 @@ func main() {
 		Handler: mux,
 	}
 
-	err := server.ListenAndServe()
+	err = server.ListenAndServe()
 	if err != nil && err != http.ErrServerClosed {
 		fmt.Printf("Error on server: %v", err)
 		os.Exit(1)
