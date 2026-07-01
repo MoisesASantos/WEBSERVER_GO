@@ -6,60 +6,20 @@ import (
 	"net/http"
 	"encoding/json"
 	"strings"
+	"github.com/MoisesASantos/WEBSERVER_GO/admin/config"
 )
 
-func respondWithError(w http.ResponseWriter, code int, msg string) {
-
-	type returnVals struct {
-        Error string `json:"error"`
-    }
-    
-	respBody := returnVals{
-        Error: msg,
-    }
-
-    dat, err := json.Marshal(respBody)
-	
-	if err != nil {
-			fmt.Printf("Error marshalling JSON: %s", err)
-			w.WriteHeader(500)
-			return
-	}
-    
-	w.Header().Set("Content-Type", "application/json")
-    w.WriteHeader(code)
-    w.Write(dat)
+type returnVals struct {
+        	Cleaned_body string `json:"cleaned_body"`
 }
 
-func respondWithJSON(w http.ResponseWriter, code int, value string) {
-	
-	type returnVals struct {
-        Cleaned_body string `json:"cleaned_body"`
-    }
-    
-	respBody := returnVals{
-        Cleaned_body: value,
-    }
-
-    dat, err := json.Marshal(respBody)
-	
-	if err != nil {
-			fmt.Printf("Error marshalling JSON: %s", err)
-			w.WriteHeader(500)
-			return
-	}
-    
-	w.Header().Set("Content-Type", "application/json")
-    w.WriteHeader(code)
-    w.Write(dat)
+type parameters struct {
+        Body string `json:"body"`
 }
+
 
 func ChirpRequestHandler(w http.ResponseWriter, r *http.Request) {
 	
-	type parameters struct {
-        Body string `json:"body"`
-    }
-
 	mapWord := map[string]int{
 		"kerfuffle":  1,
 		"sharbert": 1,
@@ -72,7 +32,7 @@ func ChirpRequestHandler(w http.ResponseWriter, r *http.Request) {
     if err != nil {
 		fmt.Printf("Error decoding parameters: %s", err)
 		w.WriteHeader(500)
-		return
+		return err
     }
 
 	if len(params.Body) <= 140 {
@@ -87,8 +47,20 @@ func ChirpRequestHandler(w http.ResponseWriter, r *http.Request) {
 				sliceResult = append(sliceResult, value)
 			}
 		}
-		respondWithJSON(w, 200, strings.Join(sliceResult, " "))
+		
+    
+		respBody := returnVals{
+        	Cleaned_body: strings.Join(sliceResult, " "),
+    	}
+		err = config.RespondWithJSON(w, 200, returnVals)
 	} else {
-		respondWithError(w, 400, "Chirp is too long")
+		err =config.RespondWithError(w, 400, "Chirp is too long")
 	}
+
+	if err != nil {
+		fmt.Printf("Error creating the response: %s", err)
+		w.WriteHeader(500)
+		return err
+	}
+	return nil;
 }
