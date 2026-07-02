@@ -5,6 +5,8 @@ import (
 	"time"
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/MoisesASantos/WEBSERVER_GO/internal/database"
+	"github.com/MoisesASantos/WEBSERVER_GO/internal/auth"
 )
 
 type returnVals struct {
@@ -15,7 +17,8 @@ type returnVals struct {
 }
 
 type requestbody struct {
-		Email string `json:"email"`
+	Password 	string `json:"password"`
+	Email 		string `json:"email"`
 }
 
 func (cfg *ApiConfig) UsersRequestHandler(w http.ResponseWriter, r *http.Request) {
@@ -27,8 +30,14 @@ func (cfg *ApiConfig) UsersRequestHandler(w http.ResponseWriter, r *http.Request
 		return 
 	}
 
+	//create hash for password
+	hash, err := auth.HashPassword(data.Password)
 	//create the user using a function created per sqlc
-	userResult, err := cfg.Db.CreateUser(r.Context(), data.Email)
+	userparams := database.CreateUserParams{
+		Email:          data.Email,
+		HashedPassword: hash,
+	}
+	userResult, err := cfg.Db.CreateUser(r.Context(), userparams)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return
