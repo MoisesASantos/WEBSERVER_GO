@@ -4,14 +4,23 @@ import (
 	"fmt"
 	"net/http"
 	"time"
-	//"github.com/MoisesASantos/WEBSERVER_GO/internal/database"
+	"github.com/google/uuid"
+	"github.com/MoisesASantos/WEBSERVER_GO/internal/database"
 	"github.com/MoisesASantos/WEBSERVER_GO/internal/auth"
 )
+
+type returnValsLogin struct {
+    ID				uuid.UUID 	`json:"id"`
+    CreatedAt 		time.Time	`json:"created_at"`
+    UpdatedAt		time.Time	`json:"updated_at"`
+    Email			string 		`json:"email"`
+	Token			string		`json:"token"`
+	RefreshToken	string		`json:"refresh_token"`
+}
 
 type requestbodyLogin struct {
 	Password 			string `json:"password"`
 	Email 				string `json:"email"`
-	ExpiresInSeconds	int		`json:"expires_in_seconds"`
 }
 
 func (cfg *ApiConfig) LoginRequestHandler(w http.ResponseWriter, r *http.Request) {
@@ -39,27 +48,37 @@ func (cfg *ApiConfig) LoginRequestHandler(w http.ResponseWriter, r *http.Request
 	
 	//create the token
 	expires := time.Hour // padrão
-
-	if data.ExpiresInSeconds > 0 {
-    	expires = time.Duration(data.ExpiresInSeconds) * time.Second
-    	if expires > time.Hour {
-        	expires = time.Hour
-    	}
-	}
-
 	token, err := auth.MakeJWT(user.ID, cfg.JwtKey, expires)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return 
 	}
-	// return the response
-	payload := returnVals{
-		ID: 		user.ID,
-		CreatedAt: 	user.CreatedAt,
-		UpdatedAt: 	user.UpdatedAt,
-		Email:		user.Email,
-		Token:		token,
+	
+	//create a refresh token
+	refresh_token := auth.MakeRefreshToken()
+	
+	paramsRefreshToken := database.CreateRefreshTokenParams {
+		Token:		refresh_token,
+		ExpiresAt:	time.Now().Add(60 * 24 * time.Hour),
+		UserID:		user.ID,
 	}
+
+	_, err = cfg.Db.CreateRefreshToken(r.Context(), paramsRefreshToken)
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		return 
+	}
+	
+	// return the response
+	payload := returnValsLogin{
+		ID: 			user.ID,
+		CreatedAt: 		user.CreatedAt,
+		UpdatedAt: 		user.UpdatedAt,
+		Email:			user.Email,
+		Token:			token,
+		RefreshToken:	refresh_token,
+	}
+
 	err = RespondWithJSON(w, 200, payload)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
