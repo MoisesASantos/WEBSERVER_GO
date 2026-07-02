@@ -19,9 +19,11 @@ func main() {
 	godotenv.Load()
 	dbURL := os.Getenv("DB_URL")
 	authDev := os.Getenv("PLATFORM")
+	jwtKey := os.Getenv("JWTKEY")
 	db, err := sql.Open("postgres", dbURL)
 	apiconfig.Db = database.New(db)
 	apiconfig.AuthDev = authDev
+	apiconfig.JwtKey = jwtKey
 
 	mux := http.NewServeMux()
 
