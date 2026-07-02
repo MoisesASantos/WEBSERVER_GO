@@ -9,6 +9,8 @@ import (
 	"github.com/google/uuid"
 	//"encoding/json"
 	"github.com/MoisesASantos/WEBSERVER_GO/internal/database"
+	"github.com/MoisesASantos/WEBSERVER_GO/internal/auth"
+
 )
 
 type returnChirp struct {
@@ -56,12 +58,25 @@ func (cfg *ApiConfig) ChirpRequestHandler(w http.ResponseWriter, r *http.Request
 		err = RespondWithError(w, 400, "Chirp is too long")
 		return 
 	}
+	//Check the jwt token
+	token, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+    	w.WriteHeader(http.StatusUnauthorized)
+    	fmt.Printf("error getting token: %s\n", err)
+    	return
+	}
+
+	userID, err := auth.ValidateJWT(token, cfg.JwtKey)
+	if err != nil {
+	    w.WriteHeader(http.StatusUnauthorized)
+	    fmt.Printf("invalid token: %s\n", err)
+	    return
+	}
 
 	//parsing the string
 	value := parsingString(data.Body)
-	fmt.Printf("User id %v\n", data.UserID)
 	//create a chirp
-	chirpBody := database.CreateChirpParams{Body: value, UserID: data.UserID,}
+	chirpBody := database.CreateChirpParams{Body: value, UserID: userID,}
 	chirpResult, err := cfg.Db.CreateChirp(r.Context(), chirpBody)
 	if err != nil {
 		fmt.Printf("Error creating the response: %s", err)
